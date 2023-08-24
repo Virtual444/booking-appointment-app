@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Registration Page</title>
+</head>
+<body>
+  <div class="container">
+    <div class="form-box">
+      <h1 class="heading">Fill the details</h1>
+      <hr>
+      <form id="myForm">
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" id="name" name="name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email:</label>
+          <input type="email" id="email" name="email" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" id="phone" name="phone" required>
+        </div>
+        
+        <button type="submit" id="submit" onclick="userDetails(event)">Register</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="userDataContainer" class="container">
+   <ul id="userDataList"><h1 class="heading">User Data</h1></ul> 
+    <hr>
+  </div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.19.0/axios.min.js"></script>
+  <script>
+
+const baseUrl = 'http://localhost:3000';
+
+document.addEventListener("DOMContentLoaded", () => {
+    axios.get(`${baseUrl}/user/get-users`)
+    .then(response => {
+        console.log(response);
+        const userDataList = document.getElementById('userDataList');
+
+response.data.users.forEach(user => {
+    const li = document.createElement('li');
+    li.textContent = `${user.name} - ${user.email}`;
+    
+    const deleteButton = document.createElement('button');
+    deleteButton.textContent = "DELETE";
+    deleteButton.addEventListener('click', () => deleteUser(user.id));
+    
+    li.appendChild(deleteButton);
+    userDataList.appendChild(li);
+});
+})
+    .catch(err => {
+        console.log(err);
+    });
+
+   
+    });
+
+
+function userDetails(event){
+  event.preventDefault();
+   
+        const name = document.getElementById('name').value;
+        const email = document.getElementById('email').value;
+        const phone = document.getElementById('phone').value;
+        const userDetails = {
+            name: name,
+            email: email,
+            phoneNumber: phone
+        }
+
+        
+        axios.post(`${baseUrl}/user/add-user`, userDetails)
+        .then(response => {
+            console.log(response);
+            location.reload();
+        })
+        .catch(err => {
+            console.log(err);
+        })
+    }
+    
+    
+   
+    
+    function deleteUser(userId){
+        let id = event.target.parentElement.id;
+        console.log("ID OF THIS LI ", id);
+    
+        axios.delete(`${baseUrl}/user/delete-user/${userId}`)
+        .then(res => {
+            console.log(res);
+            location.reload();
+        })
+        .catch(err => {
+            console.log("Error while deleting", err);
+        })
+    }
+    
+    
+  
+    </script>
+</body>
+</html>
